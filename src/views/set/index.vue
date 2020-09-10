@@ -17,7 +17,7 @@
 							:headers="{'Token':token}"
 							:before-upload="beforeAvatarUpload"
 							class="avatar-uploader"
-							action="http://127.0.0.1:3000/upload/avatar">
+							:action="actionUrl">
 							<img v-if="imageUrl" :src="imageUrl" class="avatar">
 							<i v-else class="el-icon-plus avatar-uploader-icon"/>
 						</el-upload>
@@ -65,8 +65,8 @@ export default {
       },
       formLabelWidth: '120px',
       loading: false,
-      imageUrl: ''
-
+      imageUrl: '',
+      actionUrl: process.env.BASE_API + '/upload/avatar'
     }
   },
   computed: {

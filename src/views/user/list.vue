@@ -56,7 +56,11 @@
       <el-table-column
         align="center"
         prop="create_time"
-        label="创建日期"/>
+        label="创建日期">
+        <template slot-scope="scope">
+        {{scope.row.create_time | timeFormate}}
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="handleInfo(scope.row, scope.$index)" >修改信息</el-button>
@@ -89,12 +93,19 @@
 </template>
 
 <script>
+import Moment from 'moment' 
 import { getUserList, getUserCount, updateUserinfo } from '@/api/user'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { isvalidUsername } from '@/utils/validate'
 
 export default {
   components: { Pagination },
+  filters:{
+    timeFormate: function (value) {
+        if (!value) return ''
+        return Moment(value*1000).format('YYYY-MM-DD hh:mm:ss')
+      }
+  },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!isvalidUsername(value)) {

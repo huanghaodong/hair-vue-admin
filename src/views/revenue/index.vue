@@ -104,7 +104,7 @@
           <el-select v-model="revenueForm2.payment_type" placeholder="请选择支付方式" style="width: 60%" >
             <el-option :value="0" label="现金"/>
             <el-option :value="1" label="微信"/>
-            <el-option :value="1" label="支付宝"/>
+            <el-option :value="2" label="支付宝"/>
           </el-select>
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" label="备注" prop="remark">

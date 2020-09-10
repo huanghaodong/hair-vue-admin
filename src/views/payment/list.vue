@@ -22,7 +22,7 @@
 			<el-form-item label="操作人：" prop="oprate_admin">
 				<el-input v-model="listQuery.oprate_admin" size="small"/>
 			</el-form-item>
-      <el-form-item label="申请时间：" prop="time">
+      <el-form-item label="操作时间：" prop="time">
         <el-date-picker
           v-model="listQuery.time"
           type="datetimerange"
@@ -84,7 +84,11 @@
       <el-table-column
         align="center"
         prop="create_time"
-        label="操作日期"/>
+        label="操作日期">
+        <template slot-scope="scope">
+        {{scope.row.create_time | timeFormate}}
+        </template>
+      </el-table-column>
 			<el-table-column
 				align="center"
 				prop="remark"
@@ -97,10 +101,17 @@
 
 <script>
 import { getRevenueList, getRevenueCount } from '@/api/money'
+import Moment from 'moment' 
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
   components: { Pagination },
+  filters:{
+    timeFormate: function (value) {
+        if (!value) return ''
+        return Moment(value*1000).format('YYYY-MM-DD hh:mm:ss')
+      }
+  },
   data() {
     return {
       list: null,
@@ -148,8 +159,8 @@ export default {
         ...this.listQuery
       }
       if (this.listQuery.time) {
-        data.start_time = this.listQuery.time[0]
-        data.end_time = this.listQuery.time[1]
+        data.start_time = this.listQuery.time[0] / 1000
+        data.end_time = this.listQuery.time[1] / 1000
       }
       getRevenueList(data).then(response => {
         this.list = response.data

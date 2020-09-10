@@ -4,12 +4,12 @@
     <el-col :xs="6" :sm="12" :lg="8" class="card-panel-col">
       <div class="card-panel">
         <div class="card-panel-header">
-          <span class="card-panel-header-title">今日订单金额
+          <span class="card-panel-header-title">今日收入金额
             <span class="card-panel-header-rate card-panel-header-rate-bottom">
               <i class="el-icon-bottom" />5%
             </span>
           </span>
-          <span class="card-panel-header-value">742,249.24</span>
+          <span class="card-panel-header-value">{{amountCharData.total | Fen2YuanFormate}}</span>
         </div>
         <pie-chart :chart-data="amountCharData" />
       </div>
@@ -22,7 +22,7 @@
               <i class="el-icon-top" />5%
             </span>
           </span>
-          <span class="card-panel-header-value">24296</span>
+          <span class="card-panel-header-value">{{countCharData.total}}</span>
         </div>
         <pie-chart :chart-data="countCharData" />
       </div>
@@ -49,7 +49,8 @@
 import PieChart from './PieChart'
 import LineChart from './LineChart'
 import Moment from 'moment'
-
+import { getRevenueToday, getOrderToday } from '@/api/index' 
+import { Fen2YuanFormate } from '@/utils/filter'
 export default {
   components: {
     LineChart,
@@ -59,23 +60,25 @@ export default {
     return {
       amountCharData: {
         data: [
-          { value: 546544.06, name: '支付宝', itemStyle: { color: '#3988FF' }},
-          { value: 262343.31, name: '微信', itemStyle: { color: '#09BB07' }},
+          { value: 0, name: '支付宝', itemStyle: { color: '#3988FF' }},
+          { value: 0, name: '微信', itemStyle: { color: '#09BB07' }},
           { value: 0, name: '现金', itemStyle: { color: '#e84230' }}
         ],
         radius: '80%',
         legend: ['微信', '支付宝', '现金'],
-        roseType: ''
+        roseType: '',
+        total: 0
       },
       countCharData: {
         data: [
-          { value: 14170, name: '支付宝', itemStyle: { color: '#3988FF' }},
-          { value: 10120, name: '微信', itemStyle: { color: '#09BB07' }},
+          { value: 0, name: '支付宝', itemStyle: { color: '#3988FF' }},
+          { value: 0, name: '微信', itemStyle: { color: '#09BB07' }},
           { value: 0, name: '现金', itemStyle: { color: '#e84230' }}
         ],
         radius: ['60%', '80%'],
         legend: ['微信', '支付宝', '现金'],
-        roseType: 'radius'
+        roseType: 'radius',
+        total: 0
       },
       uvCharData: {
         data: [9, 30, 10, 90, 8, 10, 2, 20, 199, 222, 86],
@@ -86,12 +89,50 @@ export default {
     }
   },
   created() {
-    const startDate = Moment().startOf("days").valueOf();
-    const endDate = Moment().endOf("days").valueOf();
-    console.log(startDate, endDate)
+    this._getRevenueToday()
+    this._getOrderToday()
   },
   methods: {
-  
+    _getRevenueToday() {
+      const data = {
+        start_time: Moment().startOf("days").valueOf()/1000,
+        end_time: Moment().endOf("days").valueOf()/1000
+      }
+      getRevenueToday(data).then(response => {
+        let temp = response.data[0]
+        for(let k in temp){
+          if(k === 'ali'){
+            this.amountCharData.data[0] = { value: Fen2YuanFormate(temp[k]), name: '支付宝', itemStyle: { color: '#3988FF' }}
+          }else if(k === 'wx'){
+            this.amountCharData.data[1] = { value: Fen2YuanFormate(temp[k]), name: '微信', itemStyle: { color: '#09BB07' }}
+          }else if(k === 'cash'){
+            this.amountCharData.data[2] = { value: Fen2YuanFormate(temp[k]), name: '现金', itemStyle: { color: '#e84230' }}
+          }else if(k === 'total'){
+            this.amountCharData.total = temp[k]
+          }
+        }
+      })
+    },
+    _getOrderToday() {
+      const data = {
+        start_time: Moment().startOf("days").valueOf()/1000,
+        end_time: Moment().endOf("days").valueOf()/1000
+      }
+      getOrderToday(data).then(response => {
+        let temp = response.data[0]
+        for(let k in temp){
+          if(k === 'ali'){
+            this.countCharData.data[0] = { value: temp[k], name: '支付宝', itemStyle: { color: '#3988FF' }}
+          }else if(k === 'wx'){
+            this.countCharData.data[1] = { value: temp[k], name: '微信', itemStyle: { color: '#09BB07' }}
+          }else if(k === 'cash'){
+            this.countCharData.data[2] = { value: temp[k], name: '现金', itemStyle: { color: '#e84230' }}
+          }else if(k === 'total'){
+            this.countCharData.total = temp[k]
+          }
+        }
+      })
+    }
   }
 }
 </script>

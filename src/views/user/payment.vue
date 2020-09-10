@@ -57,7 +57,11 @@
       <el-table-column
         align="center"
         prop="create_time"
-        label="操作日期"/>
+        label="操作日期">
+        <template slot-scope="scope">
+        {{scope.row.create_time | timeFormate}}
+        </template>
+      </el-table-column>
 			<el-table-column
 				align="center"
 				prop="remark"
@@ -69,11 +73,18 @@
 </template>
 
 <script>
+import Moment from 'moment' 
 import { getMoneyList, getMoneyCount } from '@/api/money'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
   components: { Pagination },
+  filters:{
+    timeFormate: function (value) {
+        if (!value) return ''
+        return Moment(value*1000).format('YYYY-MM-DD hh:mm:ss')
+      }
+  },
   data() {
     return {
       list: null,
